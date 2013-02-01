@@ -1,0 +1,3 @@
+[submodule "cm"]
+	path = cm
+	url = https://github.com/marijnh/CodeMirror
