@@ -131,7 +131,7 @@ function handleNewButton() {
 }
 
 function handleOpenButton() {
-  chrome.fileSystem.chooseEntry({ type: 'openFile' }, onChosenFileToOpen);
+  chrome.fileSystem.chooseEntry({ type: 'openWritableFile' }, onWritableFileToOpen);
 }
 
 function handleInfoButton(){
