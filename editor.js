@@ -175,6 +175,9 @@ onload = function() {
     {
       lineNumbers: true,
       lineWrapping: true,
+      tabSize: 2,
+      indentUnit: 2,
+      indentWithTabs: true,
       theme: "monokai",
       extraKeys: {
         "Cmd-S": function(instance) { handleSaveButton() },
