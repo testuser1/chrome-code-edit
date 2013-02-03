@@ -170,14 +170,6 @@ chrome.contextMenus.onClicked.addListener(function(info) {
 onload = function() {
   initContextMenu();
 
-  newButton = document.getElementById("new");
-  openButton = document.getElementById("open");
-  saveButton = document.getElementById("save");
-
-  newButton.addEventListener("click", handleNewButton);
-  openButton.addEventListener("click", handleOpenButton);
-  saveButton.addEventListener("click", handleSaveButton);
-
   editor = CodeMirror(
     document.getElementById("editor"),
     {
