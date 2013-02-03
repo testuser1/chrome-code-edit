@@ -20,26 +20,9 @@ button {
 #editor {
   position: absolute;
   top: 0;
-  bottom: 15px;
+  bottom: 0;
   left: 0;
   right: 0;
-}
-
-.info {
-  font-family: monospace;
-  font-size: 12px;
-  white-space: nowrap;
-  position: absolute;
-  bottom: 0;
-  padding: 0;
-  height: 15px;
-  left: 0px;
-  right: 0;
-  color:#000;
-}
-
-.info label {
-  font-weight: bold;
 }
 
 .buttons {

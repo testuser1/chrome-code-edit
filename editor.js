@@ -29,13 +29,14 @@ function errorHandler(e) {
 
   console.log("Error: " + msg);
 }
-
+var modename = "";
+var mtitle = "";
 function handleDocumentChange(title) {
   var mode = "javascript";
   var modeName = "JavaScript";
   if (title) {
     title = title.match(/[^/]+$/)[0];
-    document.getElementById("title").innerHTML = title;
+    this.mtitle = title;
     document.title = title;
     if (title.match(/.json$/)) {
       mode = {name: "javascript", json: true};
@@ -48,10 +49,10 @@ function handleDocumentChange(title) {
       modeName = "CSS";
     }
   } else {
-    document.getElementById("title").innerHTML = "[no document loaded]";
+    this.mtitle = "[no document loaded]";
   }
   editor.setOption("mode", mode);
-  document.getElementById("mode").innerHTML = modeName;
+  this.modename = modeName;
 }
 
 function newFile() {
@@ -133,6 +134,10 @@ function handleOpenButton() {
   chrome.fileSystem.chooseEntry({ type: 'openFile' }, onChosenFileToOpen);
 }
 
+function handleInfoButton(){
+  if (editor.openDialog) editor.openDialog("File: " + mtitle + " Mode: " + modename + "<button style='position:absolute;left:-1000px;'/>", [], {bottom:true});
+}
+
 function handleSaveButton() {
   if (fileEntry && hasWriteAccess) {
     writeEditorToFile(fileEntry);
@@ -183,6 +188,8 @@ onload = function() {
       extraKeys: {
         "Cmd-S": function(instance) { handleSaveButton() },
         "Ctrl-S": function(instance) { handleSaveButton() },
+        "Cmd-Space": function(instance) { handleInfoButton() },
+        "Ctrl-Space": function(instance) { handleInfoButton() },
       }
     });
   editor.on("cursorActivity", function() {
