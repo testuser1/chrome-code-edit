@@ -32,8 +32,8 @@ function errorHandler(e) {
 var modename = "";
 var mtitle = "";
 function handleDocumentChange(title) {
-  var mode = "javascript";
-  var modeName = "JavaScript";
+  var mode = "plaintext";
+  var modeName = "Plain Text";
   if (title) {
     title = title.match(/[^/]+$/)[0];
     this.mtitle = title;
@@ -181,13 +181,14 @@ onload = function() {
   editor = CodeMirror(
     document.getElementById("editor"),
     {
-      mode: {name: "javascript", json: true },
       lineNumbers: true,
       lineWrapping: true,
       theme: "monokai",
       extraKeys: {
         "Cmd-S": function(instance) { handleSaveButton() },
         "Ctrl-S": function(instance) { handleSaveButton() },
+        "Cmd-O": function(instance) { handleOpenButton() },
+        "Ctrl-O": function(instance) { handleOpenButton() },
         "Cmd-Space": function(instance) { handleInfoButton() },
         "Ctrl-Space": function(instance) { handleInfoButton() },
       }
