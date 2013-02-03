@@ -178,12 +178,16 @@ onload = function() {
     {
       mode: {name: "javascript", json: true },
       lineNumbers: true,
-      theme: "lesser-dark",
+      lineWrapping: true,
+      theme: "monokai",
       extraKeys: {
         "Cmd-S": function(instance) { handleSaveButton() },
         "Ctrl-S": function(instance) { handleSaveButton() },
       }
     });
+  editor.on("cursorActivity", function() {
+    editor.matchHighlight("CodeMirror-matchhighlight");
+  });
 
   newFile();
   onresize();
