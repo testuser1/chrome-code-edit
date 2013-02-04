@@ -67,3 +67,7 @@ button {
   background-position: right;
   background-repeat: no-repeat;
 }
+
+.bold{
+  font-weight: bold;
+}

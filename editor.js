@@ -121,9 +121,16 @@ var onSaveFile = function(theFileEntry) {
   writeEditorToFile(theFileEntry);
 };
 
-function handleNewButton(derp) {
-  if (!derp) {
-    newBuf();
+function handleNewButton(newWindow) {
+  if (!newWindow) {
+    editor.openDialog('New File: <input type="text" style="width: 10em"/>', function(query) {
+      if (query == null) return;
+      if (buffers.hasOwnProperty(query)) {
+        prompt("There's already a buffer by that name.");
+        return;
+      }
+      newBuf(query);
+    },{bottom:true});
   } else {
     chrome.app.window.create('main.html', {
       frame: 'chrome', width: 720, height: 400
@@ -136,7 +143,7 @@ function handleOpenButton() {
 }
 
 function handleInfoButton(){
-  if (editor.openDialog) editor.openDialog("<strong>File:</strong> " + mtitle + " <strong>Mode:</strong> " + modename + "<button style='position:absolute;left:-1000px;'/>", [], {bottom:true});
+  if (editor.openDialog) editor.openDialog('<span class="bold">File:</span> ' + mtitle + ' <span class="bold">Mode:</span> ' + modename + '<button style="position:absolute;left:-1000px;"/>', [], {bottom:true});
 }
 
 function handleSaveButton() {
@@ -176,7 +183,7 @@ onload = function() {
   editor.on("cursorActivity", function() {
     editor.matchHighlight("CodeMirror-matchhighlight");
   });
-	
+	newBuf("untitled");
   onresize();
 };
 
@@ -214,9 +221,7 @@ function switchToMe(name){
 
 function openBuffer(mName, writeable, file, text, mode) {
   buffers[mName] = CodeMirror.Doc(text, mode);
-  properties[mName] = new Object();
-  properties[mName].isWritable = writeable;
-  properties[mName].fileEntry = file;
+  properties[mName] = {isWritable:writeable,fileEntry:file};
   var item_link = document.createElement('a');
   var tabs_list = document.getElementById('tabs');
   item_link.appendChild(document.createTextNode(mName));
@@ -226,16 +231,9 @@ function openBuffer(mName, writeable, file, text, mode) {
   document.getElementById(mName).addEventListener("click", function(){switchToMe(mName);});
 }
 
-function newBuf() {
-  editor.openDialog('New File: <input type="text" style="width: 10em"/>', function(query) {
-    if (query == null) return;
-    if (buffers.hasOwnProperty(query)) {
-      prompt("There's already a buffer by that name.");
-      return;
-    }
-    openBuffer(query, false, null, "", "plaintext");
-    switchToMe(query);
-  },{bottom:true});
+function newBuf(name) {
+  openBuffer(name, false, null, "", "plaintext");
+  switchToMe(name);
 }
 
 function selectBuffer(name) {
