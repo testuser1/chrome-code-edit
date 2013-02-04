@@ -58,6 +58,9 @@ function handleDocumentChange(title) {
     } else if (title.match(/.css$/)) {
       mode = "css";
       modeName = "CSS";
+    } else if (title.match(/.py$/)) {
+      mode = "python";
+      modeName = "Python";
     }
   } else {
     this.mtitle = "[no document loaded]";
@@ -155,6 +158,7 @@ onload = function() {
       tabSize: 2,
       indentUnit: 2,
       indentWithTabs: true,
+			matchBrackets: true,
       theme: "monokai",
       extraKeys: {
         "Cmd-S": function(instance) { handleSaveButton() },
@@ -172,7 +176,7 @@ onload = function() {
   editor.on("cursorActivity", function() {
     editor.matchHighlight("CodeMirror-matchhighlight");
   });
-
+	
   onresize();
 };
 
@@ -187,6 +191,7 @@ onresize = function() {
 
   editor.refresh();
 }
+
 function moveElement(elementId, by){
   var elementToMove = document.getElementById(elementId);
   var s = elementToMove.style.left;
@@ -194,8 +199,9 @@ function moveElement(elementId, by){
   var re = /px$/;
   s.replace(re, "");
   var t = parseInt(s);
-  if(!(t == 30 && by == 100) && elementToMove.scrollWidth > 690) elementToMove.style.left = (t + by) + "px";
+  if(!(t == 30 && by == 100) && elementToMove.scrollWidth > elementToMove.clientWidth) elementToMove.style.left = (t + by) + "px";
 }
+
 function switchToMe(name){
   var item = document.getElementById(name);
   var list_items = document.getElementById("tabs").children;
