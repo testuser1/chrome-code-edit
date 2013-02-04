@@ -1,7 +1,16 @@
-var newButton, openButton, saveButton;
 var editor;
+var modename = "";
+var mtitle = "";
+var buffers = {};
+var properties = {};
 var fileEntry;
 var hasWriteAccess;
+
+
+function setFile(name) {
+  fileEntry = properties[name].fileEntry;
+  hasWriteAccess = properties[name].isWritable;
+}
 
 function errorHandler(e) {
   var msg = "";
@@ -29,8 +38,7 @@ function errorHandler(e) {
 
   console.log("Error: " + msg);
 }
-var modename = "";
-var mtitle = "";
+
 function handleDocumentChange(title) {
   var mode = "plaintext";
   var modeName = "Plain Text";
@@ -41,6 +49,9 @@ function handleDocumentChange(title) {
     if (title.match(/.json$/)) {
       mode = {name: "javascript", json: true};
       modeName = "JavaScript (JSON)";
+    } else if (title.match(/.js$/)) {
+      mode = "javascript";
+      modeName = "Javascript";
     } else if (title.match(/.html$/)) {
       mode = "htmlmixed";
       modeName = "HTML";
@@ -55,25 +66,16 @@ function handleDocumentChange(title) {
   this.modename = modeName;
 }
 
-function newFile() {
-  fileEntry = null;
-  hasWriteAccess = false;
-  handleDocumentChange(null);
-}
-
-function setFile(theFileEntry, isWritable) {
-  fileEntry = theFileEntry;
-  hasWriteAccess = isWritable;
-}
-
 function readFileIntoEditor(theFileEntry) {
   if (theFileEntry) {
     theFileEntry.file(function(file) {
       var fileReader = new FileReader();
 
       fileReader.onload = function(e) {
-        handleDocumentChange(theFileEntry.fullPath);
-        editor.setValue(e.target.result);
+        openBuffer(theFileEntry.name,true,theFileEntry,e.target.result);
+        setFile(theFileEntry.name);
+        selectBuffer(theFileEntry.name);
+        handleDocumentChange(theFileEntry.name);
       };
 
       fileReader.onerror = function(e) {
@@ -95,7 +97,7 @@ function writeEditorToFile(theFileEntry) {
     fileWriter.truncate(blob.size);
     fileWriter.onwriteend = function() {
       fileWriter.onwriteend = function(e) {
-        handleDocumentChange(theFileEntry.fullPath);
+        handleDocumentChange(theFileEntry.name);
         console.log("Write completed.");
       };
 
@@ -104,25 +106,21 @@ function writeEditorToFile(theFileEntry) {
   }, errorHandler);
 }
 
-var onChosenFileToOpen = function(theFileEntry) {
-  setFile(theFileEntry, false);
-  readFileIntoEditor(theFileEntry);
+var onOpenFile = function(theFileEntry) {
+  if (buffers.hasOwnProperty(theFileEntry.name)) {
+    selectBuffer(theFileEntry.name);
+  } else {
+    readFileIntoEditor(theFileEntry);
+  }
 };
 
-var onWritableFileToOpen = function(theFileEntry) {
-  setFile(theFileEntry, true);
-  readFileIntoEditor(theFileEntry);
-};
-
-var onChosenFileToSave = function(theFileEntry) {
-  setFile(theFileEntry, true);
+var onSaveFile = function(theFileEntry) {
   writeEditorToFile(theFileEntry);
 };
 
-function handleNewButton() {
-  if (false) {
-    newFile();
-    editor.setValue("");
+function handleNewButton(derp) {
+  if (!derp) {
+    newBuf();
   } else {
     chrome.app.window.create('main.html', {
       frame: 'chrome', width: 720, height: 400
@@ -131,7 +129,7 @@ function handleNewButton() {
 }
 
 function handleOpenButton() {
-  chrome.fileSystem.chooseEntry({ type: 'openWritableFile' }, onWritableFileToOpen);
+  chrome.fileSystem.chooseEntry({ type: 'openWritableFile' }, onOpenFile);
 }
 
 function handleInfoButton(){
@@ -142,34 +140,11 @@ function handleSaveButton() {
   if (fileEntry && hasWriteAccess) {
     writeEditorToFile(fileEntry);
   } else {
-    chrome.fileSystem.chooseEntry({ type: 'saveFile' }, onChosenFileToSave);
+    chrome.fileSystem.chooseEntry({ type: 'saveFile' }, onSaveFile);
   }
 }
-
-function initContextMenu() {
-  chrome.contextMenus.removeAll(function() {
-    for (var snippetName in SNIPPETS) {
-      chrome.contextMenus.create({
-        title: snippetName,
-        id: snippetName,
-        contexts: ['all']
-      });
-    }
-  });
-}
-
-chrome.contextMenus.onClicked.addListener(function(info) {
-  // Context menu command wasn't meant for us.
-  if (!document.hasFocus()) {
-    return;
-  }
-
-  editor.replaceSelection(SNIPPETS[info.menuItemId]);
-});
 
 onload = function() {
-  initContextMenu();
-
   editor = CodeMirror(
     document.getElementById("editor"),
     {
@@ -184,6 +159,8 @@ onload = function() {
         "Ctrl-S": function(instance) { handleSaveButton() },
         "Cmd-O": function(instance) { handleOpenButton() },
         "Ctrl-O": function(instance) { handleOpenButton() },
+        "Cmd-N": function(instance) { handleNewButton() },
+        "Ctrl-N": function(instance) { handleNewButton() },
         "Cmd-Space": function(instance) { handleInfoButton() },
         "Ctrl-Space": function(instance) { handleInfoButton() },
       }
@@ -192,7 +169,6 @@ onload = function() {
     editor.matchHighlight("CodeMirror-matchhighlight");
   });
 
-  newFile();
   onresize();
 };
 
@@ -206,4 +182,60 @@ onresize = function() {
   scrollerElement.style.height = containerHeight + 'px';
 
   editor.refresh();
+}
+
+function switchToMe(name){
+  var item = document.getElementById(name);
+  var list_items = document.getElementById("tab_list").children;
+  for(var i = 0; i < list_items.length; i++){
+    list_items.item(i).setAttribute("class");
+  }
+  item.setAttribute("class","active");
+  selectBuffer(name);
+}
+
+function openBuffer(mName, writeable, file, text, mode) {
+  buffers[mName] = CodeMirror.Doc(text, mode);
+  properties[mName] = new Object();
+  properties[mName].isWritable = writeable;
+  properties[mName].fileEntry = file;
+  var item_link = document.createElement('span');
+  var tabs_list = document.getElementById('tab_list');
+  item_link.appendChild(document.createTextNode(mName));
+  item_link.setAttribute("href","#");
+  item_link.setAttribute("id",mName);
+  tabs_list.appendChild(item_link);
+  document.getElementById(mName).addEventListener("click", switchToMe(mName));
+}
+
+function newBuf() {
+  editor.openDialog('New File: <input type="text" style="width: 10em"/>', function(query) {
+    if (query == null) return;
+    if (buffers.hasOwnProperty(query)) {
+      prompt("There's already a buffer by that name.");
+      return;
+    }
+    openBuffer(query, false, null, "", "plaintext");
+    selectBuffer(query);
+  },{bottom:true});
+}
+
+function selectBuffer(name) {
+  var buf = buffers[name];
+  if (buf.getEditor()) buf = buf.linkedDoc({sharedHist: true});
+  var old = editor.swapDoc(buf);
+  var linked = old.iterLinkedDocs(function(doc) {linked = doc;});
+  if (linked) {
+    // Make sure the document in buffers is the one the other view is looking at
+    for (var name in buffers) if (buffers[name] == old) buffers[name] = linked;
+    old.unlinkDoc(linked);
+  }
+  editor.focus();
+  setFile(name);
+}
+
+function nodeContent(id) {
+  var node = document.getElementById(id), val = node.textContent || node.innerText;
+  val = val.slice(val.match(/^\s*/)[0].length, val.length - val.match(/\s*$/)[0].length) + "\n";
+  return val;
 }
