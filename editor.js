@@ -234,7 +234,7 @@ function newBuf() {
       return;
     }
     openBuffer(query, false, null, "", "plaintext");
-    selectBuffer(query);
+    switchToMe(query);
   },{bottom:true});
 }
 
