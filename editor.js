@@ -39,6 +39,10 @@ function errorHandler(e) {
   console.log("Error: " + msg);
 }
 
+function getExtension(filename) {
+  return filename.split('.').pop();
+}
+
 function handleDocumentChange(title) {
   var mode = "plaintext";
   var modeName = "Plain Text";
@@ -46,27 +50,14 @@ function handleDocumentChange(title) {
     title = title.match(/[^/]+$/)[0];
     this.mtitle = title;
     document.title = title;
-    if (title.match(/.json$/)) {
-      mode = {name: "javascript", json: true};
-      modeName = "JavaScript (JSON)";
-    } else if (title.match(/.js$/)) {
-      mode = "javascript";
-      modeName = "Javascript";
-    } else if (title.match(/.html$/)) {
-      mode = "htmlmixed";
-      modeName = "HTML";
-    } else if (title.match(/.css$/)) {
-      mode = "css";
-      modeName = "CSS";
-    } else if (title.match(/.py$/)) {
-      mode = "python";
-      modeName = "Python";
+    if (filetypes[getExtension(title)]) {
+      modeChange(filetypes[getExtension(title)]);
+    } else {
+      modeChange("plaintext");
     }
   } else {
     this.mtitle = "[no document loaded]";
   }
-  editor.setOption("mode", mode);
-  this.modename = modeName;
 }
 
 function readFileIntoEditor(theFileEntry) {
@@ -138,12 +129,19 @@ function handleNewButton(newWindow) {
   }
 }
 
+function handleModeButton() {
+  editor.openDialog('Change mode: <input type="text" style="width: 10em"/>', function(query) {
+      if (query == null) return;
+      modeChange(query, true);
+    },{bottom:true});
+}
+
 function handleOpenButton() {
   chrome.fileSystem.chooseEntry({ type: 'openWritableFile' }, onOpenFile);
 }
 
 function handleInfoButton(){
-  if (editor.openDialog) editor.openDialog('<span class="bold">File:</span> ' + mtitle + ' <span class="bold">Mode:</span> ' + modename + '<button style="position:absolute;left:-1000px;"/>', [], {bottom:true});
+  if (editor.openDialog) editor.openDialog('<span class="bold">File:</span> ' + mtitle + ' <span class="bold" style="padding-left:8px; border-left: 1px solid #333;">Mode:</span> ' + modename + '<button style="position:absolute;left:-1000px;"/>', [], {bottom:true});
 }
 
 function handleSaveButton() {
@@ -157,6 +155,7 @@ function handleSaveButton() {
 onload = function() {
   document.getElementById("back").addEventListener("click", function(){moveElement("tabs", -100);});
   document.getElementById("forward").addEventListener("click", function(){moveElement("tabs", 100);});
+  CodeMirror.modeURL = "cm/mode/%N/%N.js";
   editor = CodeMirror(
     document.getElementById("editor"),
     {
@@ -174,6 +173,8 @@ onload = function() {
         "Ctrl-O": function(instance) { handleOpenButton() },
         "Cmd-N": function(instance) { handleNewButton() },
         "Ctrl-N": function(instance) { handleNewButton() },
+        "Cmd-M": function(instance) { handleModeButton() },
+        "Ctrl-M": function(instance) { handleModeButton() },
         "Shift-Cmd-N": function(instance) { handleNewButton(true) },
         "Shift-Ctrl-N": function(instance) { handleNewButton(true) },
         "Cmd-Space": function(instance) { handleInfoButton() },
@@ -197,6 +198,13 @@ onresize = function() {
   scrollerElement.style.height = containerHeight + 'px';
 
   editor.refresh();
+}
+
+function modeChange(mode, manual){
+  editor.setOption("mode", mode);
+  CodeMirror.autoLoadMode(editor, mode);
+  this.modename = mode;
+  if(manual) this.modename = mode + " (Manual Change)";
 }
 
 function moveElement(elementId, by){
@@ -234,6 +242,8 @@ function openBuffer(mName, writeable, file, text, mode) {
 function newBuf(name) {
   openBuffer(name, false, null, "", "plaintext");
   switchToMe(name);
+  setFile(name);
+  handleDocumentChange(name);
 }
 
 function selectBuffer(name) {
