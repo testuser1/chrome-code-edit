@@ -1,39 +1,32 @@
 <!DOCTYPE html>
 <html>
-<head>
-
-<script src="snippets.js"></script>
-<script src="editor.js"></script>
-
-<script src="cm/lib/codemirror.js"></script>
-
-<script src="cm/mode/css/css.js"></script>
-<script src="cm/mode/xml/xml.js"></script>
-<script src="cm/mode/javascript/javascript.js"></script>
-<script src="cm/mode/htmlmixed/htmlmixed.js"></script>
-
-<script src="dialog/dialog.js"></script>
-<script src="search/searchcursor.js"></script>
-<script src="search/search.js"></script>
-<script src="search/match-highlighter.js"></script>
-
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="cm/lib/codemirror.css">
-<link rel="stylesheet" href="dialog/dialog.css">
-<link rel="stylesheet" href="monokai.css">
-
-<style type="text/css">
-      span.CodeMirror-matchhighlight { background: #e9e9e9 }
-      .CodeMirror-focused span.CodeMirror-matchhighlight { background: #e07f6d !important; }
-</style>
-</head>
-
-<body>
-<div id="tabs">
-	<ul id="tab_list">
-	</ul>
-</div>
-<div id="editor"></div>
-
-</body>
+	<head>
+		<script src="editor.js"></script>
+		<script src="cm/lib/codemirror.js"></script>
+		<script src="cm/mode/css/css.js"></script>
+		<script src="cm/mode/xml/xml.js"></script>
+		<script src="cm/mode/javascript/javascript.js"></script>
+		<script src="cm/mode/htmlmixed/htmlmixed.js"></script>
+		<script src="dialog/dialog.js"></script>
+		<script src="search/searchcursor.js"></script>
+		<script src="search/search.js"></script>
+		<script src="search/match-highlighter.js"></script>
+		<link rel="stylesheet" href="style.css">
+		<link rel="stylesheet" href="cm/lib/codemirror.css">
+		<link rel="stylesheet" href="dialog/dialog.css">
+		<link rel="stylesheet" href="monokai.css">
+		<style type="text/css">
+	      span.CodeMirror-matchhighlight { background: #e9e9e9 }
+	      .CodeMirror-focused span.CodeMirror-matchhighlight { background: #e07f6d !important; }
+		</style>
+	</head>
+	<body>
+		<div id="nav">
+			<a href="#" id="back"><</a>
+			<a href="#" id="forward">></a>
+			<div id="tabs">
+			</div>
+		</div>
+		<div id="editor"></div>
+	</body>
 </html>

@@ -74,7 +74,7 @@ function readFileIntoEditor(theFileEntry) {
       fileReader.onload = function(e) {
         openBuffer(theFileEntry.name,true,theFileEntry,e.target.result);
         setFile(theFileEntry.name);
-        selectBuffer(theFileEntry.name);
+        switchToMe(theFileEntry.name);
         handleDocumentChange(theFileEntry.name);
       };
 
@@ -108,7 +108,7 @@ function writeEditorToFile(theFileEntry) {
 
 var onOpenFile = function(theFileEntry) {
   if (buffers.hasOwnProperty(theFileEntry.name)) {
-    selectBuffer(theFileEntry.name);
+    switchToMe(theFileEntry.name);
   } else {
     readFileIntoEditor(theFileEntry);
   }
@@ -133,7 +133,7 @@ function handleOpenButton() {
 }
 
 function handleInfoButton(){
-  if (editor.openDialog) editor.openDialog("File: " + mtitle + " Mode: " + modename + "<button style='position:absolute;left:-1000px;'/>", [], {bottom:true});
+  if (editor.openDialog) editor.openDialog("<strong>File:</strong> " + mtitle + " <strong>Mode:</strong> " + modename + "<button style='position:absolute;left:-1000px;'/>", [], {bottom:true});
 }
 
 function handleSaveButton() {
@@ -145,6 +145,8 @@ function handleSaveButton() {
 }
 
 onload = function() {
+  document.getElementById("back").addEventListener("click", function(){moveElement("tabs", -100);});
+  document.getElementById("forward").addEventListener("click", function(){moveElement("tabs", 100);});
   editor = CodeMirror(
     document.getElementById("editor"),
     {
@@ -161,6 +163,8 @@ onload = function() {
         "Ctrl-O": function(instance) { handleOpenButton() },
         "Cmd-N": function(instance) { handleNewButton() },
         "Ctrl-N": function(instance) { handleNewButton() },
+        "Shift-Cmd-N": function(instance) { handleNewButton(true) },
+        "Shift-Ctrl-N": function(instance) { handleNewButton(true) },
         "Cmd-Space": function(instance) { handleInfoButton() },
         "Ctrl-Space": function(instance) { handleInfoButton() },
       }
@@ -183,10 +187,18 @@ onresize = function() {
 
   editor.refresh();
 }
-
+function moveElement(elementId, by){
+  var elementToMove = document.getElementById(elementId);
+  var s = elementToMove.style.left;
+  if(s == "") s = "30px";
+  var re = /px$/;
+  s.replace(re, "");
+  var t = parseInt(s);
+  if(!(t == 30 && by == 100) && elementToMove.scrollWidth > 690) elementToMove.style.left = (t + by) + "px";
+}
 function switchToMe(name){
   var item = document.getElementById(name);
-  var list_items = document.getElementById("tab_list").children;
+  var list_items = document.getElementById("tabs").children;
   for(var i = 0; i < list_items.length; i++){
     list_items.item(i).setAttribute("class");
   }
@@ -199,13 +211,13 @@ function openBuffer(mName, writeable, file, text, mode) {
   properties[mName] = new Object();
   properties[mName].isWritable = writeable;
   properties[mName].fileEntry = file;
-  var item_link = document.createElement('span');
-  var tabs_list = document.getElementById('tab_list');
+  var item_link = document.createElement('a');
+  var tabs_list = document.getElementById('tabs');
   item_link.appendChild(document.createTextNode(mName));
   item_link.setAttribute("href","#");
   item_link.setAttribute("id",mName);
   tabs_list.appendChild(item_link);
-  document.getElementById(mName).addEventListener("click", switchToMe(mName));
+  document.getElementById(mName).addEventListener("click", function(){switchToMe(mName);});
 }
 
 function newBuf() {

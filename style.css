@@ -21,17 +21,19 @@ button {
 .CodeMirror-scroll {
   
 }
+#nav{
+  background-color: #272822;
+}
+#nav a{
+  color:#eee;
+}
 
 #tabs {
-  background: #272822 url('img/topleft.png') no-repeat fixed left top;
   font-family: monospace;
   font-size: 12px;
   height: 15px;
-  background: ;
   color: #f8f8f2;
-}
-#tabs ul{
-  list-style-type:none;
+  white-space: nowrap;
   margin: 0;
   padding:0;
   position: absolute;
@@ -39,16 +41,14 @@ button {
   left:30px;
   right:0;
 }
-#tabs ul li{
-  display:inline;
-  margin:0;
-  padding: 0;
+#tabs::-webkit-scrollbar { 
+    display: none; 
 }
-#tabs ul span{
+#tabs a{
   margin-right: 10px;
   color:#49483E;
 }
-#tabs ul span.active{
+#tabs a.active{
   background: #49483E !important;
   color: #f8f8f2;
 }
