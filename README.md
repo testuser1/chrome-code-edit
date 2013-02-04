@@ -1,6 +1,14 @@
-# Mini code editor
+# Chrome code editor
 
-A non-trivial sample with basic features of a code editor, like syntax detection and syntax highlight. If also uses the extended FileSystem API that allows a user to select files from the disk so the app can read and write to that file.
+A fork of the example in the chrome-app-samples repo.
+Features bracket matching, crude tab system, ctrl-X shortcuts.
+
+## Shortcuts
+* Ctrl-O: Opens a file
+* Ctrl-S: Saves the file
+* Ctrl-Space: Show an information dialog
+* Ctrl-N: Creates a new file
+* Shift-Ctrl-N: Opens a new window
 
 ## APIs
 
