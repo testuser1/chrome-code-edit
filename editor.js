@@ -113,6 +113,18 @@ var onOpenFile = function(theFileEntry) {
 };
 
 var onSaveFile = function(theFileEntry) {
+	if (theFileEntry.name != currentFile){
+		var tab = document.getElementById(currentFile);
+		properties[theFileEntry.name] = properties[currentFile];
+		buffers[theFileEntry.name] = buffers[currentFile];
+		delete properties[currentFile];
+		delete buffers[currentFile];
+		tabs[currentTab] = theFileEntry.name;
+		tab.setAttribute("id",theFileEntry.name);
+		tab.innerHTML = theFileEntry.name;
+		tab.onclick = function(){switchToMe(theFileEntry.name);};
+		setFile(theFileEntry.name);
+	}
   writeEditorToFile(theFileEntry);
 };
 
@@ -268,7 +280,8 @@ function addTab(name){
   item_link.setAttribute("href","#");
   item_link.setAttribute("id",name);
   tabs_list.appendChild(item_link);
-  document.getElementById(name).addEventListener("click", function(){switchToMe(name);});
+	//document.getElementById(name).addEventListener("click", function(){switchToMe(name);});
+	document.getElementById(name).onclick = function(){switchToMe(name);};
   currentTab = tabs.push(name);
 }
 
