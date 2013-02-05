@@ -5,11 +5,13 @@ var buffers = {};
 var properties = {};
 var fileEntry;
 var hasWriteAccess;
+var currentFile;
 
 
 function setFile(name) {
   fileEntry = properties[name].fileEntry;
   hasWriteAccess = properties[name].isWritable;
+  currentFile = name;
 }
 
 function errorHandler(e) {
@@ -140,6 +142,13 @@ function handleOpenButton() {
   chrome.fileSystem.chooseEntry({ type: 'openWritableFile' }, onOpenFile);
 }
 
+function handleCloseButton() {
+  document.getElementById(currentFile).remove();
+  delete buffers[currentFile];
+  var next = document.getElementById("tabs").getElementsByClassName("inactive")[0];
+  if (next){switchToMe(next.id);} else {newBuf("untitled");}
+}
+
 function handleInfoButton(){
   if (editor.openDialog) editor.openDialog('<span class="bold">File:</span> ' + mtitle + ' <span class="bold" style="padding-left:8px; border-left: 1px solid #333;">Mode:</span> ' + modename + '<button style="position:absolute;left:-1000px;"/>', [], {bottom:true});
 }
@@ -175,6 +184,8 @@ onload = function() {
         "Ctrl-N": function(instance) { handleNewButton() },
         "Cmd-M": function(instance) { handleModeButton() },
         "Ctrl-M": function(instance) { handleModeButton() },
+        "Cmd-Q": function(instance) { handleCloseButton() },
+        "Ctrl-Q": function(instance) { handleCloseButton() },
         "Shift-Cmd-N": function(instance) { handleNewButton(true) },
         "Shift-Ctrl-N": function(instance) { handleNewButton(true) },
         "Cmd-Space": function(instance) { handleInfoButton() },
@@ -222,7 +233,7 @@ function switchToMe(name){
   var item = document.getElementById(name);
   var list_items = document.getElementById("tabs").children;
   for(var i = 0; i < list_items.length; i++){
-    list_items.item(i).setAttribute("class");
+    list_items.item(i).setAttribute("class","inactive");
   }
   item.setAttribute("class","active");
   selectBuffer(name);
