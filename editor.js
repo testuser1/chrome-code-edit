@@ -119,7 +119,7 @@ var onSaveFile = function(theFileEntry) {
 function handleNewButton(newWindow) {
   if (!newWindow) {
     editor.openDialog('New File: <input type="text" style="width: 10em"/>', function(query) {
-      if (query == null) return;
+      if (query == null || query == "") return;
       if (buffers.hasOwnProperty(query)) {
         prompt("There's already a buffer by that name.");
         return;
@@ -215,9 +215,10 @@ onresize = function() {
 }
 
 function modeChange(mode, manual){
-  editor.setOption("mode", mode);
+	if(mode == "plaintext") return;
+	this.modename = mode;
+	editor.setOption("mode", mode);
   CodeMirror.autoLoadMode(editor, mode);
-  this.modename = mode;
   if(mode == "clike") editor.setOption("mode","text/x-csrc");
   if(manual) this.modename = mode + " (Manual Change)";
 }
