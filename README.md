@@ -5,7 +5,9 @@ Features bracket matching, crude tab system, ctrl-X shortcuts.
 
 ## Shortcuts
 * Ctrl-O: Opens a file
+* Ctrl-Q: Closes a file (Does not save, does not prompt - bad right now.) 
 * Ctrl-S: Saves the file
+* Ctrl-M: Manual mode change
 * Ctrl-Space: Show an information dialog
 * Ctrl-N: Creates a new file
 * Shift-Ctrl-N: Opens a new window
