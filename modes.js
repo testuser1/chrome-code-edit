@@ -53,7 +53,7 @@ var filetypes = {
 	ins: "stex",
 	irbrc: "ruby",
 	jake: "javascript",
-	javas: "clike", //special
+	java: "clike", //special
 	js: "javascript",
 	jsfl: "javascript",
 	jsm: "javascript",

@@ -204,6 +204,7 @@ function modeChange(mode, manual){
   editor.setOption("mode", mode);
   CodeMirror.autoLoadMode(editor, mode);
   this.modename = mode;
+  if(mode == "clike") editor.setOption("mode","text/x-csrc");
   if(manual) this.modename = mode + " (Manual Change)";
 }
 
