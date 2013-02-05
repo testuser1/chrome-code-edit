@@ -22,6 +22,10 @@ button {
   
 }
 #nav{
+  position:absolute;
+  left:0;
+  top:0;
+  width:30px;
   background-color: #272822;
 }
 #nav a{
@@ -40,6 +44,7 @@ button {
   top:0;
   left:30px;
   right:0;
+  background-color: #272822;
 }
 #tabs::-webkit-scrollbar { 
     display: none; 

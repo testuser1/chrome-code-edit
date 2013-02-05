@@ -161,8 +161,8 @@ function handleSaveButton() {
 }
 
 onload = function() {
-  document.getElementById("back").addEventListener("click", function(){moveElement("tabs", -100);});
-  document.getElementById("forward").addEventListener("click", function(){moveElement("tabs", 100);});
+  document.getElementById("back").addEventListener("click", function(){moveElement("tabs", 100);});
+  document.getElementById("forward").addEventListener("click", function(){moveElement("tabs", -100);});
   CodeMirror.modeURL = "cm/mode/%N/%N.js";
   editor = CodeMirror(
     document.getElementById("editor"),
@@ -245,7 +245,8 @@ function moveElement(elementId, by){
   var re = /px$/;
   s.replace(re, "");
   var t = parseInt(s);
-  if(!(t == 30 && by == 100) && elementToMove.scrollWidth > elementToMove.clientWidth) elementToMove.style.left = (t + by) + "px";
+  if(by < 0 && elementToMove.scrollWidth > elementToMove.clientWidth) elementToMove.style.left = (t + by) + "px";
+  if(by > 0 && t < 30) elementToMove.style.left = (t + by) + "px";
 }
 
 function switchToMe(name){
