@@ -11,6 +11,8 @@ Features bracket matching, crude tab system, ctrl-X shortcuts.
 * Ctrl-Space: Show an information dialog
 * Ctrl-N: Creates a new file
 * Shift-Ctrl-N: Opens a new window
+* Ctrl-Tab: Move one file to the right
+* Shift-Ctrl-N: Move one file to the left
 
 ## How to use
 Open up a terminal and type this:

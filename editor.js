@@ -188,7 +188,11 @@ onload = function() {
         "Shift-Cmd-N": function(instance) { handleNewButton(true) },
         "Shift-Ctrl-N": function(instance) { handleNewButton(true) },
         "Cmd-Space": function(instance) { handleInfoButton() },
-        "Ctrl-Space": function(instance) { handleInfoButton() }
+        "Ctrl-Space": function(instance) { handleInfoButton() },
+        "Cmd-Tab": function(instance) { nextTab(false) },
+        "Ctrl-Tab": function(instance) { nextTab(false) },
+        "Shift-Cmd-Tab": function(instance) { nextTab(true) },
+        "Shift-Ctrl-Tab": function(instance) { nextTab(true) }
       }
     });
   editor.on("cursorActivity", function() {
@@ -218,6 +222,22 @@ function modeChange(mode, manual){
   if(manual) this.modename = mode + " (Manual Change)";
 }
 
+function nextTab(backward){
+  var changeTo;
+  if (tabs.length == 1){return;}
+  if ((currentTab == (tabs.length-1)) && !backward){
+    changeTo = 0;
+  } else if ((currentTab == 0) && backward){
+    changeTo = tabs.length-1;
+  } else if (backward) {
+    changeTo = currentTab -1;
+  } else {
+    changeTo = currentTab +1;
+  }
+  var newtab = tabs[changeTo];
+  switchToMe(newtab);
+}
+
 function moveElement(elementId, by){
   var elementToMove = document.getElementById(elementId);
   var s = elementToMove.style.left;
@@ -236,6 +256,7 @@ function switchToMe(name){
   }
   item.setAttribute("class","active");
   selectBuffer(name);
+  currentTab = tabs.indexOf(name);
 }
 
 function addTab(name){
