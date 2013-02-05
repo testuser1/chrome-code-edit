@@ -25,9 +25,6 @@ git submodule update
 
 Then load into Chrome as an unpacked extension.
 
-## APIs
-
-* [chrome.fileSystem](http://developer.chrome.com/trunk/apps/fileSystem.html)
-* [Runtime](http://developer.chrome.com/trunk/apps/app.runtime.html)
-* [Window](http://developer.chrome.com/trunk/apps/app.window.html)
-
+## Disclaimer
+This was made for my personal use, so there might be better ways to do things - I'm not very experienced.
+Feel free to submit a pull request if there is anything you can do better :)
