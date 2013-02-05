@@ -3,6 +3,8 @@ var modename = "";
 var mtitle = "";
 var buffers = {};
 var properties = {};
+var tabs = [];
+var currentTab;
 var fileEntry;
 var hasWriteAccess;
 var currentFile;
@@ -143,10 +145,7 @@ function handleOpenButton() {
 }
 
 function handleCloseButton() {
-  document.getElementById(currentFile).remove();
-  delete buffers[currentFile];
-  var next = document.getElementById("tabs").getElementsByClassName("inactive")[0];
-  if (next){switchToMe(next.id);} else {newBuf("untitled");}
+  removeTab(currentFile);
 }
 
 function handleInfoButton(){
@@ -189,7 +188,7 @@ onload = function() {
         "Shift-Cmd-N": function(instance) { handleNewButton(true) },
         "Shift-Ctrl-N": function(instance) { handleNewButton(true) },
         "Cmd-Space": function(instance) { handleInfoButton() },
-        "Ctrl-Space": function(instance) { handleInfoButton() },
+        "Ctrl-Space": function(instance) { handleInfoButton() }
       }
     });
   editor.on("cursorActivity", function() {
@@ -239,16 +238,32 @@ function switchToMe(name){
   selectBuffer(name);
 }
 
+function addTab(name){
+  var item_link = document.createElement('a');
+  var tabs_list = document.getElementById('tabs');
+  item_link.appendChild(document.createTextNode(name));
+  item_link.setAttribute("href","#");
+  item_link.setAttribute("id",name);
+  tabs_list.appendChild(item_link);
+  document.getElementById(name).addEventListener("click", function(){switchToMe(name);});
+  currentTab = tabs.push(name);
+}
+
+function removeTab(name){
+  var next;
+  document.getElementById(name).remove();
+  delete buffers[name];
+  var index = tabs.indexOf(name);
+  if (index == -1) return false;
+  if (index < (tabs.length - 1)){next = tabs[index + 1]} else {next = tabs[0]};
+  tabs.splice(index,1);
+  if (tabs.length > 0){switchToMe(next);} else {newBuf("untitled");}
+}
+
 function openBuffer(mName, writeable, file, text, mode) {
   buffers[mName] = CodeMirror.Doc(text, mode);
   properties[mName] = {isWritable:writeable,fileEntry:file};
-  var item_link = document.createElement('a');
-  var tabs_list = document.getElementById('tabs');
-  item_link.appendChild(document.createTextNode(mName));
-  item_link.setAttribute("href","#");
-  item_link.setAttribute("id",mName);
-  tabs_list.appendChild(item_link);
-  document.getElementById(mName).addEventListener("click", function(){switchToMe(mName);});
+  addTab(mName);
 }
 
 function newBuf(name) {
