@@ -9,13 +9,21 @@ var fileEntry;
 var hasWriteAccess;
 var currentFile;
 
+//Open file in editor after picker
+var onOpenFile = function(theFileEntry) {
+  if (buffers.hasOwnProperty(theFileEntry.name)) {
+    switchTab(theFileEntry.name);
+  } else {
+    readFileIntoEditor(theFileEntry);
+  }
+};
 
-function setFile(name) {
-  fileEntry = properties[name].fileEntry;
-  hasWriteAccess = properties[name].isWritable;
-  currentFile = name;
-}
+//Save the file after picker
+var onSaveFile = function(theFileEntry) {
+  writeEditorToFile(theFileEntry);
+};
 
+//Handle filesystem errors
 function errorHandler(e) {
   var msg = "";
 
@@ -43,10 +51,12 @@ function errorHandler(e) {
   console.log("Error: " + msg);
 }
 
+//Get file type.
 function getExtension(filename) {
   return filename.split('.').pop();
 }
 
+//Set mode based on file type
 function handleDocumentChange(title) {
   var mode = "plaintext";
   var modeName = "Plain Text";
@@ -64,6 +74,7 @@ function handleDocumentChange(title) {
   }
 }
 
+//Open file
 function readFileIntoEditor(theFileEntry) {
   if (theFileEntry) {
     theFileEntry.file(function(file) {
@@ -71,9 +82,7 @@ function readFileIntoEditor(theFileEntry) {
 
       fileReader.onload = function(e) {
         openBuffer(theFileEntry.name,true,theFileEntry,e.target.result);
-        setFile(theFileEntry.name);
-        switchToMe(theFileEntry.name);
-        handleDocumentChange(theFileEntry.name);
+        switchTab(theFileEntry.name);
       };
 
       fileReader.onerror = function(e) {
@@ -85,6 +94,7 @@ function readFileIntoEditor(theFileEntry) {
   }
 }
 
+//Save file
 function writeEditorToFile(theFileEntry) {
   theFileEntry.createWriter(function(fileWriter) {
     fileWriter.onerror = function(e) {
@@ -104,14 +114,47 @@ function writeEditorToFile(theFileEntry) {
   }, errorHandler);
 }
 
-var onOpenFile = function(theFileEntry) {
-  if (buffers.hasOwnProperty(theFileEntry.name)) {
-    switchToMe(theFileEntry.name);
-  } else {
-    readFileIntoEditor(theFileEntry);
-  }
-};
+//Change the mode
+function modeChange(mode, manual){
+	if(mode == "plaintext") return;
+	this.modename = mode;
+	editor.setOption("mode", mode);
+  CodeMirror.autoLoadMode(editor, mode);
+  if(mode == "clike") editor.setOption("mode","text/x-csrc");
+  if(manual) this.modename = mode + " (Manual Change)";
+}
 
+//For scrolling the tab bar
+//TODO: make better...
+function moveElement(elementId, by){
+  var elementToMove = document.getElementById(elementId);
+  var s = elementToMove.style.left;
+  if(s == "") s = "30px";
+  var re = /px$/;
+  s.replace(re, "");
+  var t = parseInt(s);
+  if(by < 0 && elementToMove.scrollWidth > elementToMove.clientWidth) elementToMove.style.left = (t + by) + "px";
+  if(by > 0 && t < 30) elementToMove.style.left = (t + by) + "px";
+}
+
+//Switch to next tab
+function nextTab(backward){
+  var changeTo;
+  if (tabs.length == 1){return;}
+  if ((currentTab == (tabs.length-1)) && !backward){
+    changeTo = 0;
+  } else if ((currentTab == 0) && backward){
+    changeTo = tabs.length-1;
+  } else if (backward) {
+    changeTo = currentTab -1;
+  } else {
+    changeTo = currentTab +1;
+  }
+  var newtab = tabs[changeTo];
+  switchTab(newtab);
+}
+
+<<<<<<< HEAD
 var onSaveFile = function(theFileEntry) {
 	if (theFileEntry.name != currentFile){
 		var tab = document.getElementById(currentFile);
@@ -127,7 +170,74 @@ var onSaveFile = function(theFileEntry) {
 	}
   writeEditorToFile(theFileEntry);
 };
+=======
+//Adds a new tab
+function addTab(name){
+  var item_link = document.createElement('a');
+  var tabs_list = document.getElementById('tabs');
+  item_link.appendChild(document.createTextNode(name));
+  item_link.setAttribute("href","#");
+  item_link.setAttribute("id",name);
+  tabs_list.appendChild(item_link);
+  document.getElementById(name).addEventListener("click", function(){switchTab(name);});
+  currentTab = tabs.push(name);
+}
 
+//Removes a tab
+function removeTab(name){
+  var next;
+  document.getElementById(name).remove();
+  delete buffers[name];
+  var index = tabs.indexOf(name);
+  if (index == -1) return false;
+  if (index < (tabs.length - 1)){next = tabs[index + 1]} else {next = tabs[0]};
+  tabs.splice(index,1);
+  if (tabs.length > 0){switchTab(next);} else {newBuffer("untitled");}
+}
+>>>>>>> Changing layout of editor.js
+
+//Switches to a new tab
+function switchTab(name){
+  var item = document.getElementById(name);
+  var list_items = document.getElementById("tabs").children;
+  for(var i = 0; i < list_items.length; i++){
+    list_items.item(i).setAttribute("class","inactive");
+  }
+  item.setAttribute("class","active");
+  selectBuffer(name);
+  currentTab = tabs.indexOf(name);
+}
+
+//Opens a new buffer given a file
+function openBuffer(mName, writeable, file, text, mode) {
+  buffers[mName] = CodeMirror.Doc(text, mode);
+  properties[mName] = {isWritable:writeable,fileEntry:file};
+  addTab(mName);
+}
+
+//Creates a new buffer with no file entry
+function newBuffer(name) {
+  openBuffer(name, false, null, "", "plaintext");
+  switchTab(name);
+}
+
+//Sets the current buffer (file) to display
+function selectBuffer(name) {
+  var buf = buffers[name];
+  var old = editor.swapDoc(buf);
+  editor.focus();
+  setFile(name);
+  handleDocumentChange(name);
+}
+
+//Set variables of current file loaded
+function setFile(name) {
+  fileEntry = properties[name].fileEntry;
+  hasWriteAccess = properties[name].isWritable;
+  currentFile = name;
+}
+
+//Handler for new key
 function handleNewButton(newWindow) {
   if (!newWindow) {
     editor.openDialog('New File: <input type="text" style="width: 10em"/>', function(query) {
@@ -136,7 +246,7 @@ function handleNewButton(newWindow) {
         prompt("There's already a buffer by that name.");
         return;
       }
-      newBuf(query);
+      newBuffer(query);
     },{bottom:true});
   } else {
     chrome.app.window.create('main.html', {
@@ -145,6 +255,7 @@ function handleNewButton(newWindow) {
   }
 }
 
+//Handler for mode key
 function handleModeButton() {
   editor.openDialog('Change mode: <input type="text" style="width: 10em"/>', function(query) {
       if (query == null) return;
@@ -152,18 +263,22 @@ function handleModeButton() {
     },{bottom:true});
 }
 
+//Handler for open key
 function handleOpenButton() {
   chrome.fileSystem.chooseEntry({ type: 'openWritableFile' }, onOpenFile);
 }
 
+//Handler for close tab key
 function handleCloseButton() {
   removeTab(currentFile);
 }
 
+//Handler for info key
 function handleInfoButton(){
   if (editor.openDialog) editor.openDialog('<span class="bold">File:</span> ' + mtitle + ' <span class="bold" style="padding-left:8px; border-left: 1px solid #333;">Mode:</span> ' + modename + '<button style="position:absolute;left:-1000px;"/>', [], {bottom:true});
 }
 
+//Handler for save key
 function handleSaveButton() {
   if (fileEntry && hasWriteAccess) {
     writeEditorToFile(fileEntry);
@@ -175,6 +290,7 @@ function handleSaveButton() {
 onload = function() {
   document.getElementById("back").addEventListener("click", function(){moveElement("tabs", 100);});
   document.getElementById("forward").addEventListener("click", function(){moveElement("tabs", -100);});
+
   CodeMirror.modeURL = "cm/mode/%N/%N.js";
   editor = CodeMirror(
     document.getElementById("editor"),
@@ -184,7 +300,7 @@ onload = function() {
       tabSize: 2,
       indentUnit: 2,
       indentWithTabs: true,
-			matchBrackets: true,
+      matchBrackets: true,
       theme: "monokai",
       extraKeys: {
         "Cmd-S": function(instance) { handleSaveButton() },
@@ -210,7 +326,7 @@ onload = function() {
   editor.on("cursorActivity", function() {
     editor.matchHighlight("CodeMirror-matchhighlight");
   });
-	newBuf("untitled");
+  newBuffer("untitled");
   onresize();
 };
 
@@ -225,6 +341,7 @@ onresize = function() {
 
   editor.refresh();
 }
+<<<<<<< HEAD
 
 function modeChange(mode, manual){
 	if(mode == "plaintext") return;
@@ -328,3 +445,5 @@ function nodeContent(id) {
   val = val.slice(val.match(/^\s*/)[0].length, val.length - val.match(/\s*$/)[0].length) + "\n";
   return val;
 }
+=======
+>>>>>>> Changing layout of editor.js
