@@ -106,6 +106,7 @@ function writeEditorToFile(theFileEntry) {
     fileWriter.onwriteend = function() {
       fileWriter.onwriteend = function(e) {
         handleDocumentChange(theFileEntry.name);
+        setFile(theFileEntry.name);
         console.log("Write completed.");
       };
 
@@ -154,7 +155,6 @@ function nextTab(backward){
   switchTab(newtab);
 }
 
-<<<<<<< HEAD
 var onSaveFile = function(theFileEntry) {
 	if (theFileEntry.name != currentFile){
 		var tab = document.getElementById(currentFile);
@@ -170,7 +170,7 @@ var onSaveFile = function(theFileEntry) {
 	}
   writeEditorToFile(theFileEntry);
 };
-=======
+
 //Adds a new tab
 function addTab(name){
   var item_link = document.createElement('a');
@@ -194,7 +194,6 @@ function removeTab(name){
   tabs.splice(index,1);
   if (tabs.length > 0){switchTab(next);} else {newBuffer("untitled");}
 }
->>>>>>> Changing layout of editor.js
 
 //Switches to a new tab
 function switchTab(name){
